@@ -50,11 +50,10 @@
             android:textColor="@color/text_input"
             android:textSize="16sp"
             android:hint="@string/hint_type_here"
-            android:hintTextColor="@color/text_hint"
+            android:textColorHint="@color/text_hint"
             android:inputType="textMultiLine|textNoSuggestions"
             android:imeOptions="actionNone"
-            android:gravity="top|start"
-            android:showSoftInputOnFocus="false" />
+            android:gravity="top|start" />
 
         <LinearLayout
             android:layout_width="match_parent"
