@@ -23,55 +23,64 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
-
-      - name: Generate Gradle wrapper
-        run: gradle wrapper --gradle-version 8.6
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.6'
 
       - name: Set SDK path
         run: |
           echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> $GITHUB_ENV
           echo "sdk.dir=/usr/local/lib/android/sdk" > local.properties
 
-      - name: Generar keystore
+      - name: Install Android SDK packages
         run: |
-          keytool -genkeypair \
-            -alias stylekeys \
-            -keyalg RSA -keysize 2048 -validity 9125 \
-            -keystore stylekeys-release.jks \
-            -storepass stylekeys2024 \
-            -keypass stylekeys2024 \
-            -dname "CN=StyleKeys,OU=App,O=facszero,L=Montevideo,ST=Uruguay,C=UY"
+          /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager \
+            "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Generar Gradle wrapper
+        run: gradle wrapper
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease --no-daemon 2>&1 | tee build-output.log; exit ${PIPESTATUS[0]}
-
-      - name: Listar APKs generadas
-        if: always()
-        run: find app/build/outputs/apk -name "*.apk" | sort
-
-      - name: Sign APK
         run: |
+          ./gradlew assembleRelease --no-daemon 2>&1 | tee build-output.log
+          exit ${PIPESTATUS[0]}
+
+      - name: Listar APKs
+        if: always()
+        run: find app/build/outputs/apk -name "*.apk" 2>/dev/null || echo "No APKs encontradas"
+
+      - name: Generar keystore y firmar APK
+        run: |
+          keytool -genkeypair \
+            -alias stylekeys -keyalg RSA -keysize 2048 -validity 9125 \
+            -keystore stylekeys.jks \
+            -storepass stylekeys2024 -keypass stylekeys2024 \
+            -dname "CN=StyleKeys,O=facszero,C=UY" -noprompt
+
           BT=/usr/local/lib/android/sdk/build-tools/34.0.0
           UNSIGNED=$(find app/build/outputs/apk/release -name "*unsigned*.apk" | head -1)
-          echo "Firmando: $UNSIGNED"
+          echo "APK a firmar: $UNSIGNED"
+
           $BT/apksigner sign \
-            --ks stylekeys-release.jks \
+            --ks stylekeys.jks \
             --ks-key-alias stylekeys \
             --ks-pass pass:stylekeys2024 \
             --key-pass pass:stylekeys2024 \
             --out app/build/outputs/apk/release/StyleKeys.apk \
             "$UNSIGNED"
-          $BT/apksigner verify app/build/outputs/apk/release/StyleKeys.apk && echo "FIRMA OK"
 
-      - name: Subir log
+          $BT/apksigner verify app/build/outputs/apk/release/StyleKeys.apk
+          echo "Firmada OK"
+
+      - name: Subir log (siempre)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
           path: build-output.log
           retention-days: 7
+          if-no-files-found: warn
 
       - name: Crear GitHub Release
         uses: softprops/action-gh-release@v2
@@ -83,11 +92,9 @@ jobs:
 
             **Instalación:**
             1. Descargá `StyleKeys.apk`
-            2. Ajustes → Seguridad → activar "Instalar apps desconocidas"
-            3. Abrí el APK e instalá
+            2. Ajustes → Seguridad → Instalar apps desconocidas → activar
+            3. Abrí el APK descargado e instalá
             4. Ajustes → Sistema → Idioma y entrada → Teclados → Activar StyleKeys
           files: app/build/outputs/apk/release/StyleKeys.apk
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
