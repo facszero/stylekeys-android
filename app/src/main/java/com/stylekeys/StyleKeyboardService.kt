@@ -39,15 +39,32 @@ class StyleKeyboardService : InputMethodService() {
         etDisplay.isFocusable = false
         etDisplay.isFocusableInTouchMode = false
 
-        // Registrar callback: cuando el dialog confirme, actualizamos la UI
-        InputDialogActivity.onTextReady = { text ->
-            etDisplay.setText(text)
-            updatePreview(text)
-        }
-
         buildStyleChips()
         setupListeners()
         return root
+    }
+
+    // Se llama cada vez que la ventana del teclado se vuelve visible
+    // — momento ideal para leer el resultado del dialog
+    override fun onWindowShown() {
+        super.onWindowShown()
+        checkForPendingResult()
+    }
+
+    private fun checkForPendingResult() {
+        val prefs = getSharedPreferences(
+            InputDialogActivity.PREFS_NAME, Context.MODE_PRIVATE)
+        if (prefs.getBoolean(InputDialogActivity.KEY_HAS_RESULT, false)) {
+            val text = prefs.getString(InputDialogActivity.KEY_RESULT_TEXT, "") ?: ""
+            // Limpiar inmediatamente para no reusar en la próxima apertura
+            prefs.edit()
+                .remove(InputDialogActivity.KEY_RESULT_TEXT)
+                .putBoolean(InputDialogActivity.KEY_HAS_RESULT, false)
+                .apply()
+            // Actualizar la UI del teclado
+            etDisplay.setText(text)
+            updatePreview(text)
+        }
     }
 
     override fun onStartInputView(info: android.view.inputmethod.EditorInfo?, restarting: Boolean) {
@@ -97,11 +114,10 @@ class StyleKeyboardService : InputMethodService() {
     }
 
     private fun openInputDialog() {
-        val intent = Intent(this, InputDialogActivity::class.java).apply {
+        startActivity(Intent(this, InputDialogActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             putExtra(InputDialogActivity.EXTRA_CURRENT_TEXT, etDisplay.text.toString())
-        }
-        startActivity(intent)
+        })
     }
 
     private fun selectStyle(style: TextStyler.Style) {
