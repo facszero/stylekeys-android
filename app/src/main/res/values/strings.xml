@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">StyleKeys</string>
+    <string name="ime_name">StyleKeys — Teclado con estilos</string>
+    <string name="subtype_label">Español (Latinoamérica)</string>
+
+    <!-- MainActivity -->
+    <string name="setup_title">Configurar StyleKeys</string>
+    <string name="step1_title">Paso 1 — Activar el teclado</string>
+    <string name="step1_desc">Habilitá StyleKeys en la configuración del sistema.</string>
+    <string name="step1_btn">Abrir configuración</string>
+    <string name="step2_title">Paso 2 — Seleccionarlo como teclado</string>
+    <string name="step2_desc">Tocá el ícono de teclado en cualquier campo de texto y elegí StyleKeys.</string>
+    <string name="step2_btn">Seleccionar teclado</string>
+    <string name="ready_title">¡Todo listo!</string>
+    <string name="ready_desc">StyleKeys está activo. Buscá el botón de cambio de teclado cuando escribas.</string>
+
+    <!-- Keyboard UI -->
+    <string name="hint_type_here">Escribí tu texto acá…</string>
+    <string name="btn_insert">Insertar</string>
+    <string name="btn_clear">Limpiar</string>
+    <string name="btn_switch">⌨ Cambiar teclado</string>
+    <string name="preview_label">Vista previa:</string>
+</resources>
