@@ -3,64 +3,69 @@ name: Build APK
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build Debug APK
+    name: Build Release APK
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout código
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configurar JDK 17
+      - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Instalar Android SDK manualmente
+      - name: Install Android SDK packages
         run: |
-          # Los runners ubuntu-latest ya tienen Android SDK preinstalado
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "SDK disponible en: $(ls $ANDROID_HOME)"
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
-          # Instalar plataforma y build-tools necesarios
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
-            "platforms;android-34" \
-            "build-tools;34.0.0" \
-            --sdk_root=$ANDROID_HOME
+      - name: Generate Gradle wrapper
+        run: gradle wrapper --gradle-version 8.6
 
-      - name: Generar Gradle Wrapper
-        run: |
-          # El runner ubuntu-latest ya tiene Gradle instalado
-          gradle wrapper --gradle-version 8.6 --distribution-type bin
-          chmod +x gradlew
-          cat gradle/wrapper/gradle-wrapper.properties
-
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: ${{ runner.os }}-gradle-
-
-      - name: Fijar ANDROID_HOME correctamente
+      - name: Set SDK path
         run: |
           echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> $GITHUB_ENV
           echo "sdk.dir=/usr/local/lib/android/sdk" > local.properties
 
-      - name: Compilar APK debug
+      - name: Generar keystore de release
         run: |
-          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build-output.log
+          keytool -genkeypair \
+            -alias stylekeys \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 9125 \
+            -keystore stylekeys-release.jks \
+            -storepass stylekeys2024 \
+            -keypass stylekeys2024 \
+            -dname "CN=StyleKeys, OU=App, O=facszero, L=Montevideo, ST=Uruguay, C=UY"
+
+      - name: Build Release APK
+        run: |
+          ./gradlew assembleRelease --no-daemon 2>&1 | tee build-output.log
           exit ${PIPESTATUS[0]}
 
-      - name: Subir log de build (siempre, incluso si falla)
+      - name: Sign APK
+        run: |
+          BUILD_TOOLS=/usr/local/lib/android/sdk/build-tools/34.0.0
+          UNSIGNED=app/build/outputs/apk/release/app-release-unsigned.apk
+          SIGNED=app/build/outputs/apk/release/StyleKeys.apk
+
+          $BUILD_TOOLS/apksigner sign \
+            --ks stylekeys-release.jks \
+            --ks-key-alias stylekeys \
+            --ks-pass pass:stylekeys2024 \
+            --key-pass pass:stylekeys2024 \
+            --out $SIGNED \
+            $UNSIGNED
+
+          $BUILD_TOOLS/apksigner verify $SIGNED && echo "APK firmada OK"
+
+      - name: Subir log (siempre)
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -68,9 +73,21 @@ jobs:
           path: build-output.log
           retention-days: 7
 
-      - name: Subir APK
-        uses: actions/upload-artifact@v4
+      - name: Crear GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: StyleKeys-debug-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 30
+          tag_name: v1.0.${{ github.run_number }}
+          name: StyleKeys v1.0.${{ github.run_number }}
+          body: |
+            ## StyleKeys — Teclado con estilos UTF-8
+
+            **Instalación:**
+            1. Descargá el archivo `StyleKeys.apk`
+            2. En tu Android: Ajustes → Seguridad → activar "Fuentes desconocidas"
+            3. Abrí el APK descargado e instalá
+            4. Ajustes → Sistema → Teclados → Activar StyleKeys
+          files: app/build/outputs/apk/release/StyleKeys.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

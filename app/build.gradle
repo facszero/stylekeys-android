@@ -17,8 +17,11 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled false
+            // El firmado se hace con apksigner en el workflow de CI
+        }
+        debug {
+            applicationIdSuffix ".debug"
         }
     }
 
@@ -29,10 +32,6 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
-    }
-
-    buildFeatures {
-        // viewBinding no se usa — se accede a vistas con findViewById
     }
 }
 
