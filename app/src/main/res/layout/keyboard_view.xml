@@ -8,15 +8,13 @@
     android:background="@color/bg_keyboard"
     android:elevation="4dp">
 
-    <!-- ── Barra de estilos (scroll horizontal) ────────────────────────── -->
+    <!-- Barra de estilos con scroll horizontal -->
     <HorizontalScrollView
         android:id="@+id/style_scroll"
         android:layout_width="match_parent"
         android:layout_height="52dp"
         android:background="@color/bg_style_bar"
-        android:scrollbars="none"
-        android:fadingEdge="horizontal"
-        android:requiresFadingEdge="horizontal">
+        android:scrollbars="none">
 
         <LinearLayout
             android:id="@+id/style_chips_container"
@@ -25,19 +23,15 @@
             android:orientation="horizontal"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
-            android:gravity="center_vertical"
-            android:divider="@drawable/chip_divider"
-            android:showDividers="middle" />
+            android:gravity="center_vertical" />
 
     </HorizontalScrollView>
 
-    <!-- ── Separador ───────────────────────────────────────────────────── -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/divider" />
 
-    <!-- ── Área de escritura ───────────────────────────────────────────── -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -45,7 +39,6 @@
         android:padding="12dp"
         android:background="@color/bg_keyboard">
 
-        <!-- Campo de texto de entrada -->
         <EditText
             android:id="@+id/et_input"
             android:layout_width="match_parent"
@@ -63,7 +56,6 @@
             android:gravity="top|start"
             android:showSoftInputOnFocus="false" />
 
-        <!-- Vista previa del texto transformado -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -94,38 +86,35 @@
 
         </LinearLayout>
 
-        <!-- Botones de acción -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:weightSum="2">
+            android:layout_marginTop="10dp">
 
             <Button
                 android:id="@+id/btn_clear"
                 android:layout_width="0dp"
                 android:layout_height="44dp"
-                android:layout_weight="0.7"
+                android:layout_weight="1"
                 android:text="@string/btn_clear"
                 android:textSize="14sp"
+                android:textColor="@color/text_primary"
                 android:backgroundTint="@color/btn_clear"
-                android:layout_marginEnd="6dp"
-                style="@style/Widget.MaterialComponents.Button" />
+                android:layout_marginEnd="6dp" />
 
             <Button
                 android:id="@+id/btn_insert"
                 android:layout_width="0dp"
                 android:layout_height="44dp"
-                android:layout_weight="1.3"
+                android:layout_weight="2"
                 android:text="@string/btn_insert"
                 android:textSize="14sp"
-                android:backgroundTint="@color/btn_insert"
-                style="@style/Widget.MaterialComponents.Button" />
+                android:textColor="@color/text_primary"
+                android:backgroundTint="@color/btn_insert" />
 
         </LinearLayout>
 
-        <!-- Botón para volver al teclado anterior -->
         <Button
             android:id="@+id/btn_switch_keyboard"
             android:layout_width="match_parent"
@@ -134,8 +123,7 @@
             android:text="@string/btn_switch"
             android:textSize="12sp"
             android:backgroundTint="@color/btn_switch"
-            android:textColor="@color/text_secondary"
-            style="@style/Widget.MaterialComponents.Button.TextButton" />
+            android:textColor="@color/text_secondary" />
 
     </LinearLayout>
 

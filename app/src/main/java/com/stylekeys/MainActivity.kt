@@ -9,7 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
+import com.google.android.material.card.MaterialCardView
 
 /**
  * MainActivity — Pantalla de configuración inicial.
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkSetupStatus() {
         val isEnabled = isKeyboardEnabled()
-        val cardReady = findViewById<CardView>(R.id.card_ready)
+        val cardReady = findViewById<MaterialCardView>(R.id.card_ready)
         cardReady.visibility = if (isEnabled) View.VISIBLE else View.GONE
     }
 

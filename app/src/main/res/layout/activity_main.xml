@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="⌨"
+            android:text="&#9000;"
             android:textSize="48sp"
             android:gravity="center"
             android:paddingTop="24dp" />
@@ -41,7 +41,7 @@
             android:paddingBottom="32dp" />
 
         <!-- Paso 1 -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_step1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -98,13 +98,13 @@
                     android:layout_height="44dp"
                     android:text="@string/step1_btn"
                     android:backgroundTint="@color/colorPrimary"
-                    style="@style/Widget.MaterialComponents.Button" />
+                    android:textColor="@color/colorOnPrimary" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Paso 2 -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_step2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -161,13 +161,13 @@
                     android:layout_height="44dp"
                     android:text="@string/step2_btn"
                     android:backgroundTint="@color/colorPrimary"
-                    style="@style/Widget.MaterialComponents.Button" />
+                    android:textColor="@color/colorOnPrimary" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Estado listo -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_ready"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -199,10 +199,10 @@
                     android:paddingTop="8dp" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Preview de estilos -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -234,7 +234,7 @@
                     android:lineSpacingMultiplier="1.6" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>
