@@ -1,9 +1,7 @@
 package com.stylekeys
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.inputmethodservice.InputMethodService
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -16,11 +14,6 @@ import androidx.core.content.ContextCompat
 
 class StyleKeyboardService : InputMethodService() {
 
-    companion object {
-        const val ACTION_TEXT_ENTERED = "com.stylekeys.TEXT_ENTERED"
-        const val EXTRA_TEXT = "extra_text"
-    }
-
     private var selectedStyle: TextStyler.Style = TextStyler.Style.BOLD
     private val styleChips = mutableListOf<TextView>()
 
@@ -31,24 +24,6 @@ class StyleKeyboardService : InputMethodService() {
     private lateinit var btnSwitchKeyboard: Button
     private lateinit var btnOpenKeyboard: ImageButton
     private lateinit var chipsContainer: LinearLayout
-
-    private val textReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val text = intent.getStringExtra(EXTRA_TEXT) ?: return
-            etDisplay.setText(text)
-            updatePreview(text)
-        }
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        registerReceiver(textReceiver, IntentFilter(ACTION_TEXT_ENTERED), RECEIVER_NOT_EXPORTED)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(textReceiver)
-    }
 
     override fun onCreateInputView(): View {
         val root = layoutInflater.inflate(R.layout.keyboard_view, null)
@@ -63,6 +38,12 @@ class StyleKeyboardService : InputMethodService() {
 
         etDisplay.isFocusable = false
         etDisplay.isFocusableInTouchMode = false
+
+        // Registrar callback: cuando el dialog confirme, actualizamos la UI
+        InputDialogActivity.onTextReady = { text ->
+            etDisplay.setText(text)
+            updatePreview(text)
+        }
 
         buildStyleChips()
         setupListeners()
@@ -103,7 +84,10 @@ class StyleKeyboardService : InputMethodService() {
             }
         }
 
-        btnClear.setOnClickListener { etDisplay.text.clear(); updatePreview("") }
+        btnClear.setOnClickListener {
+            etDisplay.text.clear()
+            updatePreview("")
+        }
 
         btnSwitchKeyboard.setOnClickListener {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
