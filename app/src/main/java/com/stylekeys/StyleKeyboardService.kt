@@ -74,10 +74,24 @@ class StyleKeyboardService : InputMethodService() {
         btnSwitchKeyboard = root.findViewById(R.id.btn_switch_keyboard)
         chipsContainer = root.findViewById(R.id.style_chips_container)
 
-        // Crítico para IMEs: evita que el sistema intente mostrar otro teclado
-        // cuando el usuario toca este EditText interno.
-        // No existe como atributo XML válido en AAPT2, se aplica solo desde código.
-        etInput.showSoftInputOnFocus = false
+        // SOLUCIÓN: cuando el usuario toca el EditText interno, invocamos
+        // explícitamente el teclado anterior (Gboard u otro) para ese campo.
+        // El sistema permite esto — es el mismo mecanismo que usan IMEs como
+        // SwiftKey en sus pestañas de clipboard/búsqueda.
+        etInput.showSoftInputOnFocus = true
+
+        etInput.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(view, InputMethodManager.SHOW_FORCED)
+            }
+        }
+
+        etInput.setOnClickListener { view ->
+            view.requestFocus()
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(view, InputMethodManager.SHOW_FORCED)
+        }
     }
 
     /**
