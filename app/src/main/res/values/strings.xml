@@ -12,7 +12,7 @@
     <string name="step2_title">Paso 2 — Seleccionarlo como teclado</string>
     <string name="step2_desc">Tocá el ícono de teclado en cualquier campo de texto y elegí StyleKeys.</string>
     <string name="step2_btn">Seleccionar teclado</string>
-    <string name="ready_title">¡Todo listo!</string>
+    <string name="ready_title">✅ ¡Todo listo!</string>
     <string name="ready_desc">StyleKeys está activo. Buscá el botón de cambio de teclado cuando escribas.</string>
 
     <!-- Keyboard UI -->
