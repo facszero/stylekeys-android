@@ -11,4 +11,10 @@
         <item name="android:statusBarColor">@color/colorPrimaryVariant</item>
         <item name="android:windowBackground">@color/colorBackground</item>
     </style>
+    <style name="Theme.StyleKeys.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorBackground">@color/bg_keyboard</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+    </style>
 </resources>

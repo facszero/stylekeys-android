@@ -39,21 +39,45 @@
         android:padding="12dp"
         android:background="@color/bg_keyboard">
 
-        <EditText
-            android:id="@+id/et_input"
+        <!-- Campo de texto + botón ⌨ -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="60dp"
-            android:maxLines="4"
-            android:background="@drawable/bg_input_field"
-            android:padding="12dp"
-            android:textColor="@color/text_input"
-            android:textSize="16sp"
-            android:hint="@string/hint_type_here"
-            android:textColorHint="@color/text_hint"
-            android:inputType="textMultiLine|textNoSuggestions"
-            android:imeOptions="actionNone"
-            android:gravity="top|start" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <EditText
+                android:id="@+id/et_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="60dp"
+                android:maxLines="4"
+                android:background="@drawable/bg_input_field"
+                android:padding="12dp"
+                android:textColor="@color/text_input"
+                android:textSize="16sp"
+                android:hint="@string/hint_type_here"
+                android:textColorHint="@color/text_hint"
+                android:inputType="textMultiLine|textNoSuggestions"
+                android:imeOptions="actionNone"
+                android:gravity="top|start"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:clickable="true" />
+
+            <ImageButton
+                android:id="@+id/btn_open_keyboard"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_chip_normal"
+                android:src="@android:drawable/ic_menu_edit"
+                android:contentDescription="Abrir teclado"
+                android:scaleType="centerInside"
+                android:padding="10dp" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

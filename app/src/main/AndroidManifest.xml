@@ -19,6 +19,13 @@
             </intent-filter>
         </activity>
 
+        <!-- Activity con tema Dialog para capturar texto dentro del IME -->
+        <activity
+            android:name=".InputDialogActivity"
+            android:exported="false"
+            android:theme="@style/Theme.StyleKeys.Dialog"
+            android:windowSoftInputMode="stateVisible" />
+
         <!-- Servicio de teclado IME -->
         <service
             android:name=".StyleKeyboardService"
