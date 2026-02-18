@@ -42,45 +42,49 @@ jobs:
         run: gradle wrapper
 
       - name: Build Release APK
-        run: |
-          ./gradlew assembleRelease --no-daemon 2>&1 | tee build-output.log
-          exit ${PIPESTATUS[0]}
+        run: ./gradlew assembleRelease --no-daemon
 
-      - name: Listar APKs
-        if: always()
-        run: find app/build/outputs/apk -name "*.apk" 2>/dev/null || echo "No APKs encontradas"
+      - name: Listar APKs generadas
+        run: find app/build/outputs/apk -name "*.apk" | sort
 
-      - name: Generar keystore y firmar APK
+      - name: Zipalign + Firmar APK
         run: |
+          BT=/usr/local/lib/android/sdk/build-tools/34.0.0
+          UNSIGNED=$(find app/build/outputs/apk/release -name "*.apk" ! -name "StyleKeys.apk" | head -1)
+          ALIGNED=app/build/outputs/apk/release/app-release-aligned.apk
+          SIGNED=app/build/outputs/apk/release/StyleKeys.apk
+
+          echo "APK origen: $UNSIGNED"
+
+          # Zipalign (requerido antes de firmar)
+          $BT/zipalign -v -p 4 "$UNSIGNED" "$ALIGNED"
+
+          # Generar keystore
           keytool -genkeypair \
             -alias stylekeys -keyalg RSA -keysize 2048 -validity 9125 \
             -keystore stylekeys.jks \
             -storepass stylekeys2024 -keypass stylekeys2024 \
             -dname "CN=StyleKeys,O=facszero,C=UY" -noprompt
 
-          BT=/usr/local/lib/android/sdk/build-tools/34.0.0
-          UNSIGNED=$(find app/build/outputs/apk/release -name "*unsigned*.apk" | head -1)
-          echo "APK a firmar: $UNSIGNED"
-
+          # Firmar
           $BT/apksigner sign \
             --ks stylekeys.jks \
             --ks-key-alias stylekeys \
             --ks-pass pass:stylekeys2024 \
             --key-pass pass:stylekeys2024 \
-            --out app/build/outputs/apk/release/StyleKeys.apk \
-            "$UNSIGNED"
+            --out "$SIGNED" \
+            "$ALIGNED"
 
-          $BT/apksigner verify app/build/outputs/apk/release/StyleKeys.apk
-          echo "Firmada OK"
+          $BT/apksigner verify "$SIGNED"
+          echo "✓ APK firmada: $SIGNED"
+          ls -lh "$SIGNED"
 
-      - name: Subir log (siempre)
-        if: always()
+      - name: Subir APK como artifact (backup)
         uses: actions/upload-artifact@v4
         with:
-          name: build-log
-          path: build-output.log
-          retention-days: 7
-          if-no-files-found: warn
+          name: StyleKeys-release-APK
+          path: app/build/outputs/apk/release/StyleKeys.apk
+          retention-days: 30
 
       - name: Crear GitHub Release
         uses: softprops/action-gh-release@v2
@@ -91,10 +95,11 @@ jobs:
             ## StyleKeys — Teclado con estilos UTF-8
 
             **Instalación:**
-            1. Descargá `StyleKeys.apk`
+            1. Descargá `StyleKeys.apk` (botón de abajo)
             2. Ajustes → Seguridad → Instalar apps desconocidas → activar
             3. Abrí el APK descargado e instalá
             4. Ajustes → Sistema → Idioma y entrada → Teclados → Activar StyleKeys
           files: app/build/outputs/apk/release/StyleKeys.apk
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
