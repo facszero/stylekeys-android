@@ -21,35 +21,41 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'platforms;android-34 build-tools;34.0.0'
+      - name: Instalar Android SDK manualmente
+        run: |
+          # Los runners ubuntu-latest ya tienen Android SDK preinstalado
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "SDK disponible en: $(ls $ANDROID_HOME)"
+
+          # Instalar plataforma y build-tools necesarios
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "platforms;android-34" \
+            "build-tools;34.0.0" \
+            --sdk_root=$ANDROID_HOME
 
       - name: Generar Gradle Wrapper
         run: |
-          gradle wrapper --gradle-version 8.6
+          # El runner ubuntu-latest ya tiene Gradle instalado
+          gradle wrapper --gradle-version 8.6 --distribution-type bin
           chmod +x gradlew
+          cat gradle/wrapper/gradle-wrapper.properties
 
-      - name: Cache Gradle packages
+      - name: Cache Gradle
         uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: ${{ runner.os }}-gradle-
 
       - name: Compilar APK debug
         run: ./gradlew assembleDebug --no-daemon --stacktrace
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
 
-      - name: Verificar APK generado
-        run: ls -lh app/build/outputs/apk/debug/
-
-      - name: Subir APK como artifact
+      - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
           name: StyleKeys-debug-APK
