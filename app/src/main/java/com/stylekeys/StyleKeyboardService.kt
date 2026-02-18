@@ -73,6 +73,11 @@ class StyleKeyboardService : InputMethodService() {
         btnClear = root.findViewById(R.id.btn_clear)
         btnSwitchKeyboard = root.findViewById(R.id.btn_switch_keyboard)
         chipsContainer = root.findViewById(R.id.style_chips_container)
+
+        // Crítico para IMEs: evita que el sistema intente mostrar otro teclado
+        // cuando el usuario toca este EditText interno.
+        // No existe como atributo XML válido en AAPT2, se aplica solo desde código.
+        etInput.showSoftInputOnFocus = false
     }
 
     /**
